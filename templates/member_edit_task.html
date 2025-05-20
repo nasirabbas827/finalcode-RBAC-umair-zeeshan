@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Edit Task Status{% endblock %}
+
+{% block content %}
+<div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-body">
+        <h2>Edit Status for Task: {{ task.title }}</h2>
+
+        <!-- Task Details -->
+        <dl class="row mb-4">
+            <dt class="col-sm-4">Description</dt>
+            <dd class="col-sm-8">{{ task.description|default:"-" }}</dd>
+
+            <dt class="col-sm-4">Priority</dt>
+            <dd class="col-sm-8">{{ task.priority }}</dd>
+
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8">{{ task.status }}</dd>
+
+            <dt class="col-sm-4">Deadline</dt>
+            <dd class="col-sm-8">{{ task.deadline|date:"M d, Y" | default:"-" }}</dd>
+
+            <dt class="col-sm-4">Assigned To</dt>
+            <dd class="col-sm-8">{{ task.assigned_to.name }}</dd>
+
+            <dt class="col-sm-4">Created By</dt>
+            <dd class="col-sm-8">{{ task.created_by.name }}</dd>
+
+            <dt class="col-sm-4">Created At</dt>
+            <dd class="col-sm-8">{{ task.created_at|date:"M d, Y H:i" }}</dd>
+
+            <dt class="col-sm-4">Last Updated</dt>
+            <dd class="col-sm-8">{{ task.updated_at|date:"M d, Y H:i" }}</dd>
+        </dl>
+
+        <!-- Edit Status Form -->
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select name="status" id="status" class="form-select" required aria-describedby="statusHelp">
+                    <option value="Pending" {% if task.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
+                </select>
+                <div id="statusHelp" class="form-text">Select the current status of the task.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Status</button>
+            <a href="{% url 'member_tasks' %}" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

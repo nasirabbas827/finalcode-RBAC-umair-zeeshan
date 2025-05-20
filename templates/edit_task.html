@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Edit Task{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Edit Task</h2>
+
+<div class="card mx-auto" style="max-width: 500px;">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary w-100 mt-3">Update Task</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

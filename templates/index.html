@@ -1,52 +1,76 @@
 {% extends 'base.html' %}
 
-{% block title %}Login{% endblock title %}
+{% block title %}Welcome to Task Manager{% endblock %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Login</h2>
-                </div>
-                <div class="card-body">
-                    {% if messages %}
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <ul class="mb-0">
-                                {% for message in messages %}
-                                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                                {% endfor %}
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endif %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username:</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password:</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt me-2"></i>Login
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Jumbotron / Hero Section -->
+<div class="p-5 mb-4 bg-light rounded-3">
+  <div class="container-fluid py-5 text-center">
+    <h1 class="display-4 fw-bold">Welcome to Task Manager</h1>
+    <p class="col-md-8 fs-5 mx-auto">Simplify your workflow, stay organized, and never miss a deadline.</p>
+    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Get Started <i class="fas fa-arrow-right ms-2"></i></a>
+  </div>
 </div>
-{% endblock content %}
 
+<!-- Section 1: Features -->
+<div class="container py-5">
+  <div class="row align-items-center">
+    <div class="col-md-6">
+      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Organize tasks" class="img-fluid rounded">
+    </div>
+    <div class="col-md-6">
+      <h2><i class="fas fa-tasks me-2"></i>Organize Your Tasks</h2>
+      <p>Easily create, update, and manage tasks with intuitive controls and customizable filters.</p>
+      <ul class="list-unstyled">
+        <li><i class="fas fa-check-circle text-success me-2"></i> Create tasks in seconds</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Set priorities and deadlines</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Categorize with custom labels</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2: Collaboration -->
+<div class="container py-5 bg-light">
+  <div class="row align-items-center">
+    <div class="col-md-6 order-md-2">
+      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Collaborate with team" class="img-fluid rounded">
+    </div>
+    <div class="col-md-6 order-md-1">
+      <h2><i class="fas fa-users me-2"></i>Team Collaboration</h2>
+      <p>Assign tasks to team members, track progress, and communicate effectively to boost productivity.</p>
+      <ul class="list-unstyled">
+        <li><i class="fas fa-check-circle text-success me-2"></i> Real-time updates</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Comment on tasks</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Role-based permissions</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: Analytics -->
+<div class="container py-5">
+  <div class="row align-items-center">
+    <div class="col-md-6">
+      <img  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Task analytics" class="img-fluid rounded">
+    </div>
+    <div class="col-md-6">
+      <h2><i class="fas fa-chart-line me-2"></i>Insights & Analytics</h2>
+      <p>Visualize task completion statistics with charts to help make data-driven decisions.</p>
+      <ul class="list-unstyled">
+        <li><i class="fas fa-check-circle text-success me-2"></i> Performance metrics</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Time tracking reports</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Customizable dashboards</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}

@@ -1,61 +1,41 @@
 from django.db import models
+from django.utils import timezone
 
-class Category(models.Model):
+class UserRole(models.Model):
+    ROLE_CHOICES = [
+        ('Manager', 'Manager'),
+        ('Member', 'Member')
+    ]
     name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    password_hash = models.CharField(max_length=255)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
 
-class Items(models.Model):
-    name = models.CharField(max_length=200)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity_in_stock = models.PositiveIntegerField()
-    image = models.ImageField(upload_to='Itme_images/', blank=True, null=True)
+class Task(models.Model):
+    PRIORITY_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+    ]
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+    ]
+    title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    date_added = models.DateTimeField(auto_now_add=True)
-    
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Medium')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    deadline = models.DateField(blank=True, null=True)
+    assigned_to = models.ForeignKey(UserRole, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks')
+    created_by = models.ForeignKey(UserRole, on_delete=models.SET_NULL, null=True, related_name='created_tasks')
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
-
-    # Custom method to update stock
-    def update_stock(self, quantity):
-        self.quantity_in_stock += quantity
-        self.save()
-
-
-# Purchase model to record purchases
-class Purchase(models.Model):
-    item = models.ForeignKey(Items, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        # Automatically calculate total price before saving
-        self.total_price = self.quantity * self.purchase_price
-        super(Purchase, self).save(*args, **kwargs)
-        self.item.update_stock(self.quantity)
-
-    def __str__(self):
-        return f"Purchase of {self.item.name}"
-
-# Sale model to record sales
-class Sale(models.Model):
-    item = models.ForeignKey(Items, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    sale_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        # Automatically calculate total price before saving
-        self.total_price = self.quantity * self.sale_price
-        super(Sale, self).save(*args, **kwargs)
-        self.item.update_stock(-self.quantity)
-
-    def __str__(self):
-        return f"Sale of {self.item.name}"
-
+        return self.title

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Your Tasks{% endblock %}
+
+{% block content %}
+<h2>Your Tasks</h2>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <input type="text" name="search" value="{{ request.GET.search }}" class="form-control" placeholder="Search by title, description or user">
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="In Progress" {% if request.GET.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Completed" {% if request.GET.status == 'Completed' %}selected{% endif %}>Completed</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="priority" class="form-select">
+            <option value="">All Priorities</option>
+            <option value="Low" {% if request.GET.priority == 'Low' %}selected{% endif %}>Low</option>
+            <option value="Medium" {% if request.GET.priority == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="High" {% if request.GET.priority == 'High' %}selected{% endif %}>High</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="deadline" value="{{ request.GET.deadline }}" class="form-control" placeholder="Deadline">
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{% url 'member_tasks' %}" class="btn btn-secondary">Reset</a>
+        <a href="?export=1&{{ request.GET.urlencode }}" class="btn btn-success">Export CSV</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Deadline</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.description|default:"-" }}</td>
+            <td>{{ task.priority }}</td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.deadline }}</td>
+            <td>
+                <a href="{% url 'member_edit_task_status' task.id %}" class="btn btn-sm btn-primary">Edit Status</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center">No tasks found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<h3>Task Completion Statistics</h3>
+<div class="row align-items-center">
+    <div class="col-md-6">
+        <ul>
+            <li>Total Tasks: {{ stats.total }}</li>
+            <li>Pending: {{ stats.pending }}</li>
+            <li>In Progress: {{ stats.in_progress }}</li>
+            <li>Completed: {{ stats.completed }}</li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <canvas id="tasksPieChart" style="max-height: 200px;"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctxPie = document.getElementById('tasksPieChart').getContext('2d');
+    const tasksPieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Pending', 'In Progress', 'Completed'],
+            datasets: [{
+                data: [
+                    {{ stats.pending }},
+                    {{ stats.in_progress }},
+                    {{ stats.completed }}
+                ],
+                backgroundColor: [
+                    'rgba(255, 193, 7, 0.7)',   // yellow for Pending
+                    'rgba(23, 162, 184, 0.7)',  // blue for In Progress
+                    'rgba(40, 167, 69, 0.7)'    // green for Completed
+                ],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 14 },
+                        padding: 15,
+                        boxWidth: 18
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: '#333',
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 12 }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,195 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Stationary Shop Management System{% endblock title %}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Task Management System With Role-Based Access (RBAS){% endblock title %}</title>
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
     <style>
-        /* Reset some default styles and add a background color to the body */
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            font-family: Arial, sans-serif;
-        }
-
-        .container{
-            margin-bottom:30px;
-        }
-
-        /* Style the navigation bar */
-        nav {
-            background-color: #004080; /* Dark blue for stationary shop theme */
-            padding: 10px 0;
-        }
-
-        /* Style the navigation links */
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-
-        nav li {
-            display: inline-block;
-            margin-right: 20px;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: #fff;
-            font-weight: bold;
-            font-size: 16px;
-            transition: color 0.3s ease;
-        }
-
-        /* Change link color on hover */
-        nav a:hover {
-            color: #ffcc00;
-        }
-
-        /* Page header styles */
-        h1, h2, h3 {
+       body {
+            background: linear-gradient(90deg, rgba(233, 246, 246, 0.831), rgba(207, 233, 233, 0.9));
+            font-family: 'Arial', sans-serif;
             color: #333;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 {
             text-align: center;
-            margin: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            font-family: 'Georgia', serif;
         }
 
-        /* Form styling */
-        form {
-            max-width: 400px;  
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .container {
+            margin-bottom: 40px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        input, select, textarea {
+        .table {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        input[type="submit"], button {
-            background-color: #004080;
+        .table th,
+        .table td {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .table thead th {
+            background-color: #004d4d; /* Dark teal */
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e0f7fa;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .table img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+        }
+
+        .btn-primary {
             color: #fff;
-            cursor: pointer;
-            padding: 8px 12px;
             border: none;
             border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        input[type="submit"]:hover, button:hover {
-            background-color: #ffcc00;
+        .btn-primary:hover {
+            background-color: #006666;
         }
 
         a {
-            color: #004080;
+            color: #006666;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            font-weight: bold;
         }
 
         a:hover {
-            color: #ffcc00;
+            color: #004d4d;
+            text-decoration: underline;
         }
 
-        /* Table styles */
-        table {
-            width: 90%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        /* Navbar customizations */
+        .navbar {
+            background-color: #004d4d;
         }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #e0f7fa !important;
         }
-
-        th {
-            background-color: #004080;
-            color: #fff;
+        .navbar-brand i {
+            margin-right: 8px;
+            color: #00b8b8;
         }
-
-        tr:hover {
-            background-color: #f5f5f5;
+        .nav-link {
+            color: #b2dfdb !important;
+            font-weight: 500;
+            margin-left: 12px;
         }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
+        .nav-link:hover, .nav-link:focus {
+            color: #00b8b8 !important;
+        }
+        .navbar-toggler {
+            border-color: #00b8b8;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,184,184, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'index' %}">
-                <i class="fas fa-store"></i> Stationary Shop
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <i class="fas fa-tasks"></i>RBAC       </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if request.session.user_id %}
+                    {% if request.session.user_role == 'Manager' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home' %}">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            <a class="nav-link" href="{% url 'add_task' %}">
+                                <i class="fas fa-plus-circle"></i> Add Task
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'report_view' %}">
-                                <i class="fas fa-chart-bar"></i> Reports
+                            <a class="nav-link" href="{% url 'view_tasks' %}">
+                                <i class="fas fa-tasks"></i> View Tasks
                             </a>
                         </li>
+                    {% elif request.session.user_role == 'Member' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'index' %}">
-                                <i class="fas fa-sign-in-alt"></i> Login
+                            <a class="nav-link" href="{% url 'member_tasks' %}">
+                                <i class="fas fa-tasks"></i> Your Tasks
                             </a>
                         </li>
                     {% endif %}
-                </ul>
-            </div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        {% block content %}
-        {% endblock content %}
     </div>
+</nav>
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container mt-4 mb-4">
+    {% if messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <ul class="mb-0">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    {% block content %}{% endblock content %}
+</div>
+<footer class="bg-dark text-white mt-5 py-3">
+  <div class="container text-center">
+    <div>&copy; 2025 Task Manager. All rights reserved.</div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="card mx-auto" style="max-width: 500px;">
+    <div class="card-body">
+        <h2 class="card-title mb-4">Login</h2>
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            <div class="mb-3 position-relative">
+                <label for="email" class="form-label">Email:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+            </div>
+            <div class="mb-3 position-relative">
+                <label for="password" class="form-label">Password:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+            </div>
+            <input type="submit" value="Login" class="btn btn-primary">
+        </form>
+    </div>
+</div>
+{% endblock %}

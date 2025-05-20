@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}View Tasks{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-center">Your Tasks</h2>
+
+<form method="get" class="row g-3 mb-4 align-items-end">
+    <div class="col-md-3">
+        <input type="text" name="search" value="{{ request.GET.search }}" class="form-control" placeholder="Search by title, description or user" />
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="In Progress" {% if request.GET.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Completed" {% if request.GET.status == 'Completed' %}selected{% endif %}>Completed</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="priority" class="form-select">
+            <option value="">All Priorities</option>
+            <option value="Low" {% if request.GET.priority == 'Low' %}selected{% endif %}>Low</option>
+            <option value="Medium" {% if request.GET.priority == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="High" {% if request.GET.priority == 'High' %}selected{% endif %}>High</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="deadline" value="{{ request.GET.deadline }}" class="form-control" placeholder="Deadline" />
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
+        <a href="{% url 'view_tasks' %}" class="btn btn-secondary flex-grow-1">Reset</a>
+        <a href="{% url 'export_tasks_csv' %}?{{ request.GET.urlencode }}" class="btn btn-success flex-grow-1">Export CSV</a>
+    </div>
+</form>
+
+<table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Deadline</th>
+            <th>Assigned To</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.priority }}</td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.deadline }}</td>
+            <td>{{ task.assigned_to.name }}</td>
+            <td class="text-center">
+                <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-primary me-1">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'delete_task' task.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this task?')">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center">No tasks found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr class="my-5">
+
+<h3 class="mb-3">Task Completion Statistics</h3>
+
+<div class="row align-items-center">
+    <div class="col-md-6">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Total Tasks</span>
+                <span>{{ stats.total }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Pending</span>
+                <span>{{ stats.pending }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>In Progress</span>
+                <span>{{ stats.in_progress }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Completed</span>
+                <span>{{ stats.completed }}</span>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <canvas id="taskStatsChart" style="max-height: 200px;"></canvas>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('taskStatsChart').getContext('2d');
+    const data = {
+        labels: ['Pending', 'In Progress', 'Completed'],
+        datasets: [{
+            label: 'Tasks',
+            data: [{{ stats.pending }}, {{ stats.in_progress }}, {{ stats.completed }}],
+            backgroundColor: [
+                '#ffc107',  // yellow for Pending
+                '#0d6efd',  // blue for In Progress
+                '#198754'   // green for Completed
+            ],
+            hoverOffset: 30
+        }]
+    };
+
+    const config = {
+        type: 'pie',
+        data: data,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { padding: 20, boxWidth: 20 }
+                },
+                tooltip: {
+                    enabled: true
+                }
+            }
+        }
+    };
+
+    new Chart(ctx, config);
+</script>
+
+{% endblock %}

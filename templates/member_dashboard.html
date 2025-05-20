@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block title %}Member Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Welcome Member {{ user.name }}</h2>
+
+{% if overdue_tasks.exists %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Overdue Tasks:</strong> You have {{ overdue_tasks.count }} overdue task{{ overdue_tasks.count|pluralize }}!
+    <ul>
+        {% for task in overdue_tasks %}
+            <li>{{ task.title }} - Deadline: {{ task.deadline }}</li>
+        {% endfor %}
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<p>This is your dashboard where you can view and complete your assigned tasks.</p>
+
+<div class="row my-4">
+    {% for task in assigned_tasks %}
+    <div class="col-md-4 col-sm-6 mb-3">
+        <div class="card h-100
+            {% if task.status == 'Pending' %}border-warning
+            {% elif task.status == 'In Progress' %}border-info
+            {% elif task.status == 'Completed' %}border-success
+            {% else %}border-secondary
+            {% endif %}">
+            <div class="card-body">
+                <h5 class="card-title">{{ task.title }}</h5>
+                <p class="card-text"><strong>Status:</strong> {{ task.status }}</p>
+                <p class="card-text"><strong>Priority:</strong> {{ task.priority }}</p>
+                <p class="card-text"><strong>Deadline:</strong> {{ task.deadline }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>No tasks assigned.</p>
+    {% endfor %}
+</div>
+
+<h4 class="mb-3">Task Status Overview</h4>
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <canvas id="tasksStatusBarChart" style="max-height: 200px;"></canvas>
+    </div>
+    <div class="col-md-6 mb-4">
+        <canvas id="tasksStatusPieChart" style="max-height: 200px;"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const colors = {
+        pending: 'rgba(255, 193, 7, 0.7)',    // yellow
+        inProgress: 'rgba(23, 162, 184, 0.7)', // blue
+        completed: 'rgba(40, 167, 69, 0.7)'    // green
+    };
+    const borderColors = {
+        pending: 'rgba(255, 193, 7, 1)',
+        inProgress: 'rgba(23, 162, 184, 1)',
+        completed: 'rgba(40, 167, 69, 1)'
+    };
+
+    // Bar Chart
+    const ctxBar = document.getElementById('tasksStatusBarChart').getContext('2d');
+    const tasksStatusBarChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: ['Pending', 'In Progress', 'Completed'],
+            datasets: [{
+                label: 'Number of Tasks',
+                data: [
+                    {{ pending_tasks }},
+                    {{ in_progress_tasks }},
+                    {{ completed_tasks }}
+                ],
+                backgroundColor: [
+                    colors.pending,
+                    colors.inProgress,
+                    colors.completed
+                ],
+                borderColor: [
+                    borderColors.pending,
+                    borderColors.inProgress,
+                    borderColors.completed
+                ],
+                borderWidth: 1,
+                borderRadius: 5,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    precision: 0,
+                    stepSize: 1,
+                    grid: {
+                        drawBorder: false,
+                        color: '#e0e0e0'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: '#333',
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 12 }
+                }
+            }
+        }
+    });
+
+    // Pie Chart
+    const ctxPie = document.getElementById('tasksStatusPieChart').getContext('2d');
+    const tasksStatusPieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Pending', 'In Progress', 'Completed'],
+            datasets: [{
+                data: [
+                    {{ pending_tasks }},
+                    {{ in_progress_tasks }},
+                    {{ completed_tasks }}
+                ],
+                backgroundColor: [
+                    colors.pending,
+                    colors.inProgress,
+                    colors.completed
+                ],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 18,
+                        padding: 15,
+                        font: { size: 14 }
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: '#333',
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 12 }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
