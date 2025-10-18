@@ -3,121 +3,163 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Task Management System With Role-Based Access (RBAS){% endblock title %}</title>
+    <title>{% block title %}ProTask: Role-Based Task Management System{% endblock title %}</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
     <style>
-       body {
-            background: linear-gradient(90deg, rgba(233, 246, 246, 0.831), rgba(207, 233, 233, 0.9));
-            font-family: 'Arial', sans-serif;
-            color: #333;
+        /*
+        Color Palette:
+        Primary (Action/Header): #007bff (Vibrant Blue)
+        Secondary (Hover/Accent): #0056b3 (Darker Blue)
+        Background: #f5f7fa (Very Light Grey/Blue)
+        Text: #2c3e50 (Dark Navy)
+        */
+        body {
+            background-color: #f5f7fa; /* Clean, modern background */
+            font-family: 'Roboto', sans-serif; /* Readable body font */
+            color: #2c3e50;
             line-height: 1.6;
         }
 
         h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif; /* Strong, modern heading font */
             text-align: center;
             margin-top: 30px;
             margin-bottom: 30px;
-            font-family: 'Georgia', serif;
+            color: #007bff; /* Primary Blue for main titles */
+            font-weight: 600;
         }
 
         .container {
-            margin-bottom: 40px;
+            padding-top: 20px;
+            padding-bottom: 20px;
         }
 
+        /*   Table Styling   */
         .table {
-            width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate; /* Allows border-radius to work well */
+            border-spacing: 0;
             margin-top: 20px;
-            font-size: 16px;
+            font-size: 15px;
             background-color: #ffffff;
-            border-radius: 8px;
+            border-radius: 12px; /* Softer rounded corners */
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* More substantial shadow */
         }
 
         .table th,
         .table td {
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            text-align: center;
+            padding: 18px 15px; /* Increased vertical padding for airier look */
+            border-top: 1px solid #ebf0f5; /* Lighter border line */
+            text-align: left; /* Align text left in cells for better readability */
         }
+        
+        .table th:first-child, .table td:first-child {
+            padding-left: 25px; /* Extra padding on first column */
+        }
+        .table th:last-child, .table td:last-child {
+            padding-right: 25px; /* Extra padding on last column */
+            text-align: center; /* Center action buttons */
+        }
+
 
         .table thead th {
-            background-color: #004d4d; /* Dark teal */
+            background-color: #007bff; /* Vibrant Blue Header */
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            border: none;
         }
-
-        .table tbody tr:nth-child(odd) {
-            background-color: #f8f9fa;
+        
+        .table tbody tr:first-child td {
+             border-top: none; /* Remove border from first row of tbody */
         }
 
         .table tbody tr:hover {
-            background-color: #e0f7fa;
-            transition: background-color 0.3s ease-in-out;
+            background-color: #e6f7ff; /* Light, inviting hover state */
+            transform: translateY(-1px); /* Subtle lift effect */
+            transition: all 0.2s ease-in-out;
         }
+        
+        /* Remove the image styling if not strictly needed in task tables */
+        /* If images are used, keep them small and circular/square */
+        /* .table img {
+            max-width: 50px;
+            max-height: 50px;
+            border-radius: 50%; 
+            object-fit: cover;
+        } */
 
-        .table img {
-            max-width: 100px;
-            max-height: 100px;
-            border-radius: 8px;
-        }
-
-        .btn-primary {
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        /*   Button & Link Styling   */
+        .btn-primary, .btn-primary:focus {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+            font-weight: 500;
+            padding: 10px 20px;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
         }
 
         .btn-primary:hover {
-            background-color: #006666;
+            background-color: #0056b3 !important;
+            border-color: #0056b3 !important;
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+            transform: translateY(-1px);
         }
 
         a {
-            color: #006666;
+            color: #007bff;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 500;
         }
 
         a:hover {
-            color: #004d4d;
+            color: #0056b3;
             text-decoration: underline;
         }
 
-        /* Navbar customizations */
+        /*   Navbar Customizations   */
         .navbar {
-            background-color: #004d4d;
+            background-color: #ffffff; /* White navbar for a clean, professional look */
+            border-bottom: 3px solid #007bff; /* Primary color underline */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         .navbar-brand {
+            font-family: 'Poppins', sans-serif;
             font-weight: 700;
-            font-size: 1.4rem;
-            color: #e0f7fa !important;
+            font-size: 1.6rem;
+            color: #2c3e50 !important;
         }
         .navbar-brand i {
             margin-right: 8px;
-            color: #00b8b8;
+            color: #007bff; /* Blue icon */
         }
         .nav-link {
-            color: #b2dfdb !important;
+            color: #2c3e50 !important; /* Dark text */
             font-weight: 500;
-            margin-left: 12px;
+            margin-left: 15px;
+            position: relative;
         }
         .nav-link:hover, .nav-link:focus {
-            color: #00b8b8 !important;
+            color: #007bff !important; /* Blue on hover */
         }
-        .navbar-toggler {
-            border-color: #00b8b8;
+        .nav-link i {
+            margin-right: 6px;
         }
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,184,184, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        
+        /*   Footer Styling   */
+        .footer {
+             background-color: #2c3e50; /* Dark Navy Footer */
+             color: #ecf0f1;
+             padding: 20px 0;
+             font-size: 0.9rem;
+        }
+        .footer a {
+            color: #007bff;
         }
     </style>
 </head>
@@ -126,7 +168,8 @@
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'index' %}">
-            <i class="fas fa-tasks"></i>RBAC       </a>
+            <i class="fas fa-project-diagram"></i>ProTask
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
                 aria-expanded="false" aria-label="Toggle navigation">
@@ -139,18 +182,18 @@
                     {% if request.session.user_role == 'Manager' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'add_task' %}">
-                                <i class="fas fa-plus-circle"></i> Add Task
+                                <i class="fas fa-pencil-alt"></i> New Task
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'view_tasks' %}">
-                                <i class="fas fa-tasks"></i> View Tasks
+                                <i class="fas fa-list-check"></i> All Tasks
                             </a>
                         </li>
                     {% elif request.session.user_role == 'Member' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'member_tasks' %}">
-                                <i class="fas fa-tasks"></i> Your Tasks
+                                <i class="fas fa-clipboard-list"></i> Your Tasks
                             </a>
                         </li>
                     {% endif %}
@@ -161,13 +204,13 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                            <i class="fas fa-door-open"></i> Logout
                         </a>
                     </li>
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">
-                            <i class="fas fa-sign-in-alt"></i> Login
+                            <i class="fas fa-user-circle"></i> Login
                         </a>
                     </li>
                 {% endif %}
@@ -178,8 +221,8 @@
 
 <div class="container mt-4 mb-4">
     {% if messages %}
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <ul class="mb-0">
+        <div class="alert alert-info alert-dismissible fade show" role="alert" style="box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);">
+            <ul class="mb-0 list-unstyled">
                 {% for message in messages %}
                     <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                 {% endfor %}
@@ -190,9 +233,10 @@
 
     {% block content %}{% endblock content %}
 </div>
-<footer class="bg-dark text-white mt-5 py-3">
+
+<footer class="footer mt-5">
   <div class="container text-center">
-    <div>&copy; 2025 Task Manager. All rights reserved.</div>
+    <div>&copy; 2025 ProTask Manager. All rights reserved.</div>
   </div>
 </footer>
 

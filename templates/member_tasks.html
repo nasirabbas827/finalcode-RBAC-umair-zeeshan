@@ -1,105 +1,232 @@
 {% extends 'base.html' %}
-{% block title %}Your Tasks{% endblock %}
+{% block title %}All Tasks | ProTask{% endblock %}
 
 {% block content %}
-<h2>Your Tasks</h2>
 
-<form method="get" class="row g-3 mb-4">
-    <div class="col-md-3">
-        <input type="text" name="search" value="{{ request.GET.search }}" class="form-control" placeholder="Search by title, description or user">
+<style>
+    /* Styling for the main header */
+    .page-header {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #2c3e50;
+        border-bottom: 2px solid #ebf0f5;
+        padding-bottom: 10px;
+        margin-bottom: 30px !important;
+    }
+
+    /* Filter/Search Bar Styling */
+    .filter-bar {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        height: 45px;
+    }
+
+    /* Table Enhancements */
+    .tasks-table thead th {
+        background-color: #007bff; /* Primary blue header */
+        color: white;
+        font-weight: 600;
+        vertical-align: middle;
+        border: none;
+        padding: 12px 15px;
+    }
+
+    .tasks-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .tasks-table tbody tr:hover {
+        background-color: #ebf0f5; /* Light hover effect */
+    }
+
+    .tasks-table td {
+        vertical-align: middle;
+        max-width: 250px; /* Constrain cell width */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 12px 15px;
+    }
+    
+    .tasks-table .action-btn {
+        min-width: 120px;
+    }
+
+    /* Status Badge Styling */
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 5px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .status-Pending { background-color: #ffc107; color: #333; }
+    .status-In-Progress { background-color: #17a2b8; color: #fff; }
+    .status-Completed { background-color: #28a745; color: #fff; }
+
+    /* Priority Badge Styling */
+    .priority-badge {
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 5px;
+        font-size: 0.75rem;
+    }
+    
+    .priority-High { background-color: #dc3545; color: #fff; }
+    .priority-Medium { background-color: #ffc107; color: #333; }
+    .priority-Low { background-color: #28a745; color: #fff; }
+
+    /* Stats Section */
+    .stats-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        padding: 25px;
+        margin-top: 30px;
+    }
+    .stats-list li {
+        font-size: 1.1rem;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .stats-list li:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<h2 class="page-header"><i class="fas fa-list-check me-2 text-primary"></i> Comprehensive Task List</h2>
+
+<form method="get" class="row g-3 mb-5 filter-bar align-items-end">
+    <div class="col-lg-3 col-md-6">
+        <label for="search" class="form-label small text-muted">Search All Fields</label>
+        <input type="text" id="search" name="search" value="{{ request.GET.search }}" class="form-control" placeholder="Title, User, or Description">
     </div>
-    <div class="col-md-2">
-        <select name="status" class="form-select">
+    <div class="col-lg-2 col-md-6">
+        <label for="status" class="form-label small text-muted">Status</label>
+        <select name="status" id="status" class="form-select">
             <option value="">All Statuses</option>
-            <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
-            <option value="In Progress" {% if request.GET.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-            <option value="Completed" {% if request.GET.status == 'Completed' %}selected{% endif %}>Completed</option>
+            {% for choice, label in task_status_choices %}
+                <option value="{{ choice }}" {% if request.GET.status == choice %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
         </select>
     </div>
-    <div class="col-md-2">
-        <select name="priority" class="form-select">
+    <div class="col-lg-2 col-md-6">
+        <label for="priority" class="form-label small text-muted">Priority</label>
+        <select name="priority" id="priority" class="form-select">
             <option value="">All Priorities</option>
-            <option value="Low" {% if request.GET.priority == 'Low' %}selected{% endif %}>Low</option>
-            <option value="Medium" {% if request.GET.priority == 'Medium' %}selected{% endif %}>Medium</option>
-            <option value="High" {% if request.GET.priority == 'High' %}selected{% endif %}>High</option>
+            {% for choice, label in task_priority_choices %}
+                <option value="{{ choice }}" {% if request.GET.priority == choice %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
         </select>
     </div>
-    <div class="col-md-2">
-        <input type="date" name="deadline" value="{{ request.GET.deadline }}" class="form-control" placeholder="Deadline">
+    <div class="col-lg-2 col-md-6">
+        <label for="deadline" class="form-label small text-muted">Due Date</label>
+        <input type="date" id="deadline" name="deadline" value="{{ request.GET.deadline }}" class="form-control">
     </div>
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary">Filter</button>
-        <a href="{% url 'member_tasks' %}" class="btn btn-secondary">Reset</a>
-        <a href="?export=1&{{ request.GET.urlencode }}" class="btn btn-success">Export CSV</a>
+    
+    <div class="col-lg-3 col-md-12 text-end text-md-start">
+        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-filter me-1"></i> Filter</button>
+        <a href="{% url 'member_tasks' %}" class="btn btn-outline-secondary me-2"><i class="fas fa-undo-alt me-1"></i> Reset</a>
+        <a href="?export=1&{{ request.GET.urlencode }}" class="mt-2 btn btn-success"><i class="fas fa-download me-1"></i> Export</a>
     </div>
 </form>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Deadline</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ task.title }}</td>
-            <td>{{ task.description|default:"-" }}</td>
-            <td>{{ task.priority }}</td>
-            <td>{{ task.status }}</td>
-            <td>{{ task.deadline }}</td>
-            <td>
-                <a href="{% url 'member_edit_task_status' task.id %}" class="btn btn-sm btn-primary">Edit Status</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="6" class="text-center">No tasks found.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table tasks-table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Deadline</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr id="task-{{ task.id }}">
+                <td><a href="{% url 'member_edit_task_status' task.id %}" class="fw-bold text-primary text-decoration-none">{{ task.title }}</a></td>
+                <td title="{{ task.description }}">{{ task.description|truncatechars:50|default:"-" }}</td>
+                <td>
+                    <span class="priority-badge priority-{{ task.priority }}">
+                        {{ task.priority }}
+                    </span>
+                </td>
+                <td>
+                    <span class="status-badge status-{{ task.status|slugify }}">
+                        {{ task.status }}
+                    </span>
+                </td>
+                <td>
+                    <span class="{% if task.is_overdue %}text-danger fw-bold{% endif %}">
+                        {{ task.deadline|date:"M d, Y" }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'member_edit_task_status' task.id %}" class="btn btn-sm btn-primary action-btn">
+                        <i class="fas fa-edit me-1"></i> Edit Status
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-info-circle me-2"></i> No tasks match your current criteria.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<hr>
-
-<h3>Task Completion Statistics</h3>
-<div class="row align-items-center">
-    <div class="col-md-6">
-        <ul>
-            <li>Total Tasks: {{ stats.total }}</li>
-            <li>Pending: {{ stats.pending }}</li>
-            <li>In Progress: {{ stats.in_progress }}</li>
-            <li>Completed: {{ stats.completed }}</li>
-        </ul>
-    </div>
-    <div class="col-md-6">
-        <canvas id="tasksPieChart" style="max-height: 200px;"></canvas>
+<div class="stats-card">
+    <h3 class="mb-4 text-center text-primary"><i class="fas fa-chart-pie me-2"></i> Your Task Performance Overview</h3>
+    <div class="row align-items-center">
+        <div class="col-md-5">
+            <ul class="list-unstyled stats-list">
+                <li>Total Tasks: <span class="fw-bold float-end">{{ stats.total|default:0 }}</span></li>
+                <li class="text-warning">Pending: <span class="fw-bold float-end">{{ stats.pending|default:0 }}</span></li>
+                <li class="text-info">In Progress: <span class="fw-bold float-end">{{ stats.in_progress|default:0 }}</span></li>
+                <li class="text-success">Completed: <span class="fw-bold float-end">{{ stats.completed|default:0 }}</span></li>
+            </ul>
+        </div>
+        <div class="col-md-7">
+            <canvas id="tasksPieChart" style="max-height: 250px;"></canvas>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Define ProTask Colors
+    const ProTaskColors = {
+        pending: 'rgba(255, 193, 7, 1)',     // yellow
+        inProgress: 'rgba(23, 162, 184, 1)', // cyan
+        completed: 'rgba(40, 167, 69, 1)'    // green
+    };
+
+    // Pie Chart Configuration (Updated to Doughnut for modern look)
     const ctxPie = document.getElementById('tasksPieChart').getContext('2d');
     const tasksPieChart = new Chart(ctxPie, {
-        type: 'pie',
+        type: 'doughnut', // Changed to doughnut
         data: {
             labels: ['Pending', 'In Progress', 'Completed'],
             datasets: [{
                 data: [
-                    {{ stats.pending }},
-                    {{ stats.in_progress }},
-                    {{ stats.completed }}
+                    {{ stats.pending|default:0 }},
+                    {{ stats.in_progress|default:0 }},
+                    {{ stats.completed|default:0 }}
                 ],
                 backgroundColor: [
-                    'rgba(255, 193, 7, 0.7)',   // yellow for Pending
-                    'rgba(23, 162, 184, 0.7)',  // blue for In Progress
-                    'rgba(40, 167, 69, 0.7)'    // green for Completed
+                    ProTaskColors.pending, 
+                    ProTaskColors.inProgress,
+                    ProTaskColors.completed  
                 ],
                 borderColor: '#fff',
-                borderWidth: 2
+                borderWidth: 4 // Thicker border
             }]
         },
         options: {
@@ -107,18 +234,17 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom',
+                    position: 'right', // Move legend to the right
                     labels: {
                         font: { size: 14 },
-                        padding: 15,
-                        boxWidth: 18
+                        padding: 20,
+                        boxWidth: 15
                     }
                 },
                 tooltip: {
-                    enabled: true,
-                    backgroundColor: '#333',
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 12 }
+                    backgroundColor: 'rgba(44, 62, 80, 0.9)', 
+                    titleFont: { family: 'Poppins' },
+                    bodyFont: { family: 'Roboto' }
                 }
             }
         }

@@ -1,33 +1,109 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-{% endblock %}
-
-{% block title %}Login{% endblock %}
+{% block title %}Sign In to ProTask{% endblock %}
 
 {% block content %}
-<div class="card mx-auto" style="max-width: 500px;">
-    <div class="card-body">
-        <h2 class="card-title mb-4">Login</h2>
-        <form method="POST" novalidate>
-            {% csrf_token %}
-            <div class="mb-3 position-relative">
-                <label for="email" class="form-label">Email:</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-envelope"></i></span>
-                    <input type="email" id="email" name="email" class="form-control" required>
+
+<style>
+    /* Local styles to enhance the card design and center the form */
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 50px;
+        padding-bottom: 50px;
+        min-height: 80vh; /* Ensures the form is centered vertically on the page */
+    }
+
+    .login-card {
+        max-width: 420px; /* Slightly narrower for focus */
+        width: 100%;
+        border: none;
+        border-radius: 15px; /* Softer rounded corners */
+        box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1); /* Subtle blue glow shadow */
+        background-color: #ffffff;
+        padding: 20px;
+    }
+
+    .login-card .card-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px !important;
+        font-size: 2rem;
+    }
+
+    .input-group-text {
+        background-color: #ebf0f5; /* Light background for the icon */
+        color: #007bff; /* Primary blue icon color */
+        border: 1px solid #ebf0f5;
+        border-right: none;
+    }
+
+    .form-control {
+        height: 50px;
+        border-left: none;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Primary blue focus ring */
+    }
+
+    /* Style for the submit button */
+    .btn-primary {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.1rem;
+        margin-top: 15px;
+    }
+    
+    .forgot-link {
+        display: block;
+        text-align: right;
+        font-size: 0.9rem;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="card login-card">
+        <div class="card-body">
+            <h2 class="card-title">
+                <i class="fas fa-lock me-2" style="font-size: 1.8rem; vertical-align: middle;"></i> Member Sign-In
+            </h2>
+            
+            <p class="text-center mb-4 text-secondary">
+                Access your tasks and projects securely.
+            </p>
+
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label for="email" class="form-label fw-bold">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="your.email@company.com" required>
+                    </div>
                 </div>
-            </div>
-            <div class="mb-3 position-relative">
-                <label for="password" class="form-label">Password:</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                    <input type="password" id="password" name="password" class="form-control" required>
+                
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-bold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
                 </div>
-            </div>
-            <input type="submit" value="Login" class="btn btn-primary">
-        </form>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i> Log In to ProTask
+                </button>
+            </form>
+            
+            
+        </div>
     </div>
 </div>
 {% endblock %}

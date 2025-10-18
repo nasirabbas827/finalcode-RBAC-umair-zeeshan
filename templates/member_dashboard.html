@@ -1,94 +1,204 @@
 {% extends 'base.html' %}
-{% block title %}Member Dashboard{% endblock %}
+{% block title %}Your Tasks - ProTask Member Dashboard{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Welcome Member {{ user.name }}</h2>
+
+<style>
+    /* Dashboard specific styles */
+    .welcome-header {
+        color: #2c3e50;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        border-bottom: 2px solid #ebf0f5;
+        padding-bottom: 10px;
+        margin-bottom: 20px !important;
+    }
+
+    /* Task Card Customization */
+    .task-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        background-color: #ffffff;
+        border: 1px solid #ebf0f5; /* Light default border */
+        position: relative;
+        padding-top: 25px; /* Space for the status badge */
+    }
+
+    .task-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-card .card-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+        color: #007bff;
+    }
+
+    .task-card .card-text strong {
+        color: #2c3e50; /* Dark navy for labels */
+        font-weight: 500;
+    }
+
+    /* Status Badge Styling */
+    .status-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 5px 15px;
+        border-bottom-left-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #ffffff;
+    }
+
+    /* Color Mapping for Status Badges */
+    .status-Pending { background-color: #ffc107; color: #333; }
+    .status-In-Progress { background-color: #17a2b8; }
+    .status-Completed { background-color: #28a745; }
+    .status-Overdue { background-color: #dc3545; }
+
+    /* Chart Containers (Reused from Manager Dashboard) */
+    .chart-container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="welcome-header">
+            <i class="fas fa-user-check me-2 text-primary"></i> Hello, {{ user.name|default:"ProTask Member" }}!
+        </h2>
+        <p class="lead text-secondary mb-4">
+            Focus on your active tasks and track your progress below.
+        </p>
+    </div>
+</div>
 
 {% if overdue_tasks.exists %}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Overdue Tasks:</strong> You have {{ overdue_tasks.count }} overdue task{{ overdue_tasks.count|pluralize }}!
-    <ul>
-        {% for task in overdue_tasks %}
-            <li>{{ task.title }} - Deadline: {{ task.deadline }}</li>
+<div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <h4 class="alert-heading"><i class="fas fa-clock me-2"></i> CRITICAL: {{ overdue_tasks.count }} Task{{ overdue_tasks.count|pluralize }} Overdue!</h4>
+    <p class="mb-2">These tasks require immediate attention to prevent project delays.</p>
+    <ul class="list-unstyled mb-0 small">
+        {% for task in overdue_tasks|slice:":3" %}
+            <li><i class="far fa-circle-xmark me-1"></i> **{{ task.title }}** - Due: <span class="fw-bold">{{ task.deadline }}</span></li>
         {% endfor %}
+        {% if overdue_tasks.count > 3 %}
+             <li class="mt-2"><a href="{% url 'member_tasks' %}" class="alert-link text-danger fw-bold">... and {{ overdue_tasks.count|add:"-3" }} more.</a></li>
+        {% endif %}
     </ul>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endif %}
 
-<p>This is your dashboard where you can view and complete your assigned tasks.</p>
+ 
 
-<div class="row my-4">
+<h4 class="mb-4" style="color: #2c3e50; font-family: 'Poppins', sans-serif; font-weight: 600;">Your Assigned Tasks</h4>
+
+<div class="row my-4 g-4">
     {% for task in assigned_tasks %}
-    <div class="col-md-4 col-sm-6 mb-3">
-        <div class="card h-100
-            {% if task.status == 'Pending' %}border-warning
-            {% elif task.status == 'In Progress' %}border-info
-            {% elif task.status == 'Completed' %}border-success
-            {% else %}border-secondary
-            {% endif %}">
-            <div class="card-body">
-                <h5 class="card-title">{{ task.title }}</h5>
-                <p class="card-text"><strong>Status:</strong> {{ task.status }}</p>
-                <p class="card-text"><strong>Priority:</strong> {{ task.priority }}</p>
-                <p class="card-text"><strong>Deadline:</strong> {{ task.deadline }}</p>
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <a href="{% url 'member_edit_task_status' task.id %}" class="text-decoration-none">
+            <div class="card task-card h-100">
+                <span class="status-badge status-{{ task.status|slugify }}">
+                    {{ task.status }}
+                </span>
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ task.title }}</h5>
+
+                    <p class="card-text small text-muted mb-3">
+                        <i class="fas fa-calendar-alt me-1"></i> Deadline: **{{ task.deadline|date:"M d, Y" }}**
+                    </p>
+
+                    <p class="card-text mb-2">
+                        <i class="fas fa-fire me-1 
+                            {% if task.priority == 'High' %}text-danger{% elif task.priority == 'Medium' %}text-warning{% else %}text-success{% endif %}"></i> 
+                        <strong>Priority:</strong> {{ task.priority }}
+                    </p>
+                    
+                    <button class="btn btn-sm btn-outline-primary mt-2 w-100">
+                        <i class="fas fa-eye me-1"></i> View & Update
+                    </button>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
     {% empty %}
-    <p>No tasks assigned.</p>
+    <div class="col-12">
+        <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
+            <i class="fas fa-thumbs-up fa-2x mb-3"></i>
+            <h4 class="alert-heading">All Clear!</h4>
+            <p>You currently have no tasks assigned. Great job, or maybe ask your Manager for more work! 😉</p>
+        </div>
+    </div>
     {% endfor %}
 </div>
 
-<h4 class="mb-3">Task Status Overview</h4>
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <canvas id="tasksStatusBarChart" style="max-height: 200px;"></canvas>
+ 
+
+<h4 class="mb-4 mt-4" style="color: #2c3e50; font-family: 'Poppins', sans-serif; font-weight: 600;">Your Task Progress</h4>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-3 text-center">Task Count Distribution (Bar)</h5>
+            <canvas id="tasksStatusBarChart" style="max-height: 300px;"></canvas>
+        </div>
     </div>
-    <div class="col-md-6 mb-4">
-        <canvas id="tasksStatusPieChart" style="max-height: 200px;"></canvas>
+    <div class="col-md-6">
+        <div class="chart-container">
+             <h5 class="mb-3 text-center">Your Completion Ratio (Doughnut)</h5>
+            <canvas id="tasksStatusPieChart" style="max-height: 300px;"></canvas>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const colors = {
-        pending: 'rgba(255, 193, 7, 0.7)',    // yellow
-        inProgress: 'rgba(23, 162, 184, 0.7)', // blue
-        completed: 'rgba(40, 167, 69, 0.7)'    // green
+    //   Chart Data and Colors (Updated to use ProTask colors)  
+    const chartColors = {
+        primary: '#007bff',      
+        warning: '#ffc107',      // Pending Yellow
+        info: '#17a2b8',         // In Progress Cyan
+        success: '#28a745',      // Completed Green
+        danger: '#dc3545'       
     };
-    const borderColors = {
-        pending: 'rgba(255, 193, 7, 1)',
-        inProgress: 'rgba(23, 162, 184, 1)',
-        completed: 'rgba(40, 167, 69, 1)'
+    
+    // Chart.js data is pulled from Django context
+    const chartData = {
+        pending: {{ pending_tasks|default:0 }},
+        inProgress: {{ in_progress_tasks|default:0 }},
+        completed: {{ completed_tasks|default:0 }}
     };
 
-    // Bar Chart
+    const dataLabels = ['Pending', 'In Progress', 'Completed'];
+    const dataValues = [chartData.pending, chartData.inProgress, chartData.completed];
+    const backgroundColors = [chartColors.warning, chartColors.info, chartColors.success];
+    const borderColors = [chartColors.warning, chartColors.info, chartColors.success];
+
+
+    //   Bar Chart Configuration  
     const ctxBar = document.getElementById('tasksStatusBarChart').getContext('2d');
     const tasksStatusBarChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: ['Pending', 'In Progress', 'Completed'],
+            labels: dataLabels,
             datasets: [{
                 label: 'Number of Tasks',
-                data: [
-                    {{ pending_tasks }},
-                    {{ in_progress_tasks }},
-                    {{ completed_tasks }}
-                ],
-                backgroundColor: [
-                    colors.pending,
-                    colors.inProgress,
-                    colors.completed
-                ],
-                borderColor: [
-                    borderColors.pending,
-                    borderColors.inProgress,
-                    borderColors.completed
-                ],
+                data: dataValues,
+                backgroundColor: backgroundColors,
+                borderColor: backgroundColors, 
                 borderWidth: 1,
-                borderRadius: 5,
-                barPercentage: 0.6
+                borderRadius: 8, 
+                barPercentage: 0.7
             }]
         },
         options: {
@@ -98,49 +208,38 @@
                 y: {
                     beginAtZero: true,
                     precision: 0,
-                    stepSize: 1,
+                    suggestedMax: Math.max(...dataValues) + 1,
                     grid: {
                         drawBorder: false,
-                        color: '#e0e0e0'
+                        color: '#f0f0f0' 
                     }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    }
+                    grid: { display: false }
                 }
             },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    enabled: true,
-                    backgroundColor: '#333',
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 12 }
+                    backgroundColor: 'rgba(44, 62, 80, 0.9)', 
+                    titleFont: { family: 'Poppins' },
+                    bodyFont: { family: 'Roboto' }
                 }
             }
         }
     });
 
-    // Pie Chart
+    //   Doughnut Chart Configuration   (Changed from Pie to Doughnut)
     const ctxPie = document.getElementById('tasksStatusPieChart').getContext('2d');
     const tasksStatusPieChart = new Chart(ctxPie, {
-        type: 'pie',
+        type: 'doughnut', 
         data: {
-            labels: ['Pending', 'In Progress', 'Completed'],
+            labels: dataLabels,
             datasets: [{
-                data: [
-                    {{ pending_tasks }},
-                    {{ in_progress_tasks }},
-                    {{ completed_tasks }}
-                ],
-                backgroundColor: [
-                    colors.pending,
-                    colors.inProgress,
-                    colors.completed
-                ],
-                borderColor: '#fff',
-                borderWidth: 2
+                data: dataValues,
+                backgroundColor: backgroundColors,
+                borderColor: '#ffffff', 
+                borderWidth: 4 
             }]
         },
         options: {
@@ -150,16 +249,15 @@
                 legend: {
                     position: 'bottom',
                     labels: {
-                        boxWidth: 18,
-                        padding: 15,
-                        font: { size: 14 }
+                        boxWidth: 15,
+                        padding: 25,
+                        font: { family: 'Roboto', size: 14 }
                     }
                 },
                 tooltip: {
-                    enabled: true,
-                    backgroundColor: '#333',
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 12 }
+                    backgroundColor: 'rgba(44, 62, 80, 0.9)', 
+                    titleFont: { family: 'Poppins' },
+                    bodyFont: { family: 'Roboto' }
                 }
             }
         }

@@ -1,52 +1,148 @@
 {% extends 'base.html' %}
-{% block title %}Edit Task Status{% endblock %}
+{% block title %}Update Status for {{ task.title }}{% endblock %}
 
 {% block content %}
-<div class="card mx-auto" style="max-width: 600px;">
+
+<style>
+    /* Focus Card Styling */
+    .status-card {
+        max-width: 650px;
+        width: 100%;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 123, 255, 0.15); 
+        padding: 30px;
+        background-color: #ffffff;
+    }
+
+    .form-header {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #ebf0f5;
+        padding-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .form-header h2 {
+        margin-bottom: 0;
+        font-size: 1.8rem;
+    }
+
+    /* Task Detail Styling */
+    .task-details dt {
+        font-weight: 600;
+        color: #007bff; /* Use primary color for labels */
+        margin-bottom: 8px;
+    }
+
+    .task-details dd {
+        color: #2c3e50;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    /* Highlight the current status for context */
+    .current-status-label {
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 5px;
+    }
+    
+    /* Specific Status Colors */
+    .status-Pending { background-color: #ffc107; color: #333; }
+    .status-In-Progress { background-color: #17a2b8; color: #fff; }
+    .status-Completed { background-color: #28a745; color: #fff; }
+
+    /* Form and Button Styling */
+    .form-select {
+        border-radius: 8px;
+        height: 50px; /* Larger select box */
+        font-size: 1rem;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 10px 25px;
+        font-size: 1.1rem;
+    }
+    
+    .btn-secondary {
+        padding: 10px 25px;
+        font-size: 1.1rem;
+    }
+</style>
+
+<div class="card status-card mx-auto">
     <div class="card-body">
-        <h2>Edit Status for Task: {{ task.title }}</h2>
+        
+        <div class="form-header">
+            <i class="fas fa-clipboard-check me-3 text-primary" style="font-size: 2rem;"></i>
+            <h2>Update Status for: <span class="text-secondary">{{ task.title }}</span></h2>
+        </div>
 
-        <!-- Task Details -->
-        <dl class="row mb-4">
-            <dt class="col-sm-4">Description</dt>
-            <dd class="col-sm-8">{{ task.description|default:"-" }}</dd>
+        <p class="lead text-center mb-4">
+            Current Status: 
+            <span class="current-status-label status-{{ task.status|slugify }}">
+                {{ task.status }}
+            </span>
+        </p>
+        
+        <div class="p-3 mb-4 border rounded task-details" style="background-color: #ebf0f5;">
+            <h5 class="mb-3 text-primary"><i class="fas fa-info-circle me-1"></i> Task Overview</h5>
+            <dl class="row mb-0 small">
+                <dt class="col-sm-4">Assigned To</dt>
+                <dd class="col-sm-8">{{ task.assigned_to.name }}</dd>
 
-            <dt class="col-sm-4">Priority</dt>
-            <dd class="col-sm-8">{{ task.priority }}</dd>
+                <dt class="col-sm-4">Priority</dt>
+                <dd class="col-sm-8">
+                    <span class="badge 
+                        {% if task.priority == 'High' %}bg-danger
+                        {% elif task.priority == 'Medium' %}bg-warning text-dark
+                        {% else %}bg-success
+                        {% endif %}">
+                        {{ task.priority }}
+                    </span>
+                </dd>
+                
+                <dt class="col-sm-4">Deadline</dt>
+                <dd class="col-sm-8 text-danger fw-bold">{{ task.deadline|date:"M d, Y" | default:"N/A" }}</dd>
 
-            <dt class="col-sm-4">Status</dt>
-            <dd class="col-sm-8">{{ task.status }}</dd>
+                <dt class="col-sm-4">Description</dt>
+                <dd class="col-sm-8 text-truncate" title="{{ task.description }}">
+                    {{ task.description|default:"No description provided." }}
+                </dd>
+            </dl>
+        </div>
 
-            <dt class="col-sm-4">Deadline</dt>
-            <dd class="col-sm-8">{{ task.deadline|date:"M d, Y" | default:"-" }}</dd>
-
-            <dt class="col-sm-4">Assigned To</dt>
-            <dd class="col-sm-8">{{ task.assigned_to.name }}</dd>
-
-            <dt class="col-sm-4">Created By</dt>
-            <dd class="col-sm-8">{{ task.created_by.name }}</dd>
-
-            <dt class="col-sm-4">Created At</dt>
-            <dd class="col-sm-8">{{ task.created_at|date:"M d, Y H:i" }}</dd>
-
-            <dt class="col-sm-4">Last Updated</dt>
-            <dd class="col-sm-8">{{ task.updated_at|date:"M d, Y H:i" }}</dd>
-        </dl>
-
-        <!-- Edit Status Form -->
-        <form method="post" novalidate>
+        <form method="post" novalidate class="mt-4">
             {% csrf_token %}
-            <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
-                <select name="status" id="status" class="form-select" required aria-describedby="statusHelp">
-                    <option value="Pending" {% if task.status == 'Pending' %}selected{% endif %}>Pending</option>
-                    <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                    <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
-                </select>
-                <div id="statusHelp" class="form-text">Select the current status of the task.</div>
+            <div class="mb-4">
+                <label for="status" class="form-label h5 fw-bold text-primary">
+                    <i class="fas fa-edit me-1"></i> Choose New Status
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-clipboard-list"></i></span>
+                    <select name="status" id="status" class="form-select" required aria-describedby="statusHelp">
+                        <option value="Pending" {% if task.status == 'Pending' %}selected{% endif %}>Pending (Not Started)</option>
+                        <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress (Currently Working)</option>
+                        <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed (Finished Task)</option>
+                    </select>
+                </div>
+                <div id="statusHelp" class="form-text mt-2">Selecting **Completed** will notify the Task Manager.</div>
             </div>
-            <button type="submit" class="btn btn-primary">Update Status</button>
-            <a href="{% url 'member_tasks' %}" class="btn btn-secondary ms-2">Cancel</a>
+            
+            <button type="submit" class="btn btn-primary fw-bold">
+                <i class="fas fa-sync-alt me-2"></i> Update Status
+            </button>
+            <a href="{% url 'member_tasks' %}" class="btn btn-outline-secondary ms-3">
+                <i class="fas fa-times me-2"></i> Cancel
+            </a>
         </form>
     </div>
 </div>

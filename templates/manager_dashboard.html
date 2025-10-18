@@ -1,107 +1,207 @@
 {% extends 'base.html' %}
-{% block title %}Manager Dashboard{% endblock %}
+{% block title %}Manager Dashboard - ProTask{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Welcome Manager {{ user.name }}</h2>
-<p>This is your dashboard where you can assign and manage tasks.</p>
+
+<style>
+    /* Dashboard specific styles */
+    .welcome-header {
+        color: #2c3e50;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        border-bottom: 2px solid #ebf0f5;
+        padding-bottom: 10px;
+        margin-bottom: 20px !important;
+    }
+
+    /* Stat Card Customization (Key to the professional look) */
+    .stat-card {
+        border-radius: 12px; /* Softer edges */
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        cursor: pointer;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card .card-header {
+        background-color: rgba(0, 0, 0, 0.15); /* Slightly transparent header for contrast */
+        border-bottom: none;
+        font-weight: 500;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .stat-card .card-body {
+        padding: 20px 15px;
+    }
+
+    .stat-card .card-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Custom Color Mapping for Stat Cards to align with ProTask Blue/Navy */
+    .bg-custom-total { background-color: #007bff !important; }
+    .bg-custom-pending { background-color: #ffc107 !important; color: #333 !important; } /* Yellow for urgency */
+    .bg-custom-progress { background-color: #17a2b8 !important; } /* Cyan/Info */
+    .bg-custom-completed { background-color: #28a745 !important; } /* Green for success */
+
+    /* Chart Containers */
+    .chart-container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="welcome-header">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i> Welcome back, Manager {{ user.name|default:"[User Name]" }}!
+        </h2>
+        <p class="lead text-secondary mb-4">
+            This dashboard gives you a comprehensive overview of all tasks and team performance metrics.
+        </p>
+    </div>
+</div>
 
 {% if overdue_tasks.exists %}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Overdue Tasks:</strong> You have {{ overdue_tasks.count }} overdue task{{ overdue_tasks.count|pluralize }}!
-    <ul>
-        {% for task in overdue_tasks %}
-            <li><a href="{% url 'view_tasks' %}#task-{{ task.id }}">{{ task.title }}</a> - Deadline: {{ task.deadline }}</li>
+<div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i> Action Required!</h4>
+    <p class="mb-2">You have **{{ overdue_tasks.count }}** critical overdue task{{ overdue_tasks.count|pluralize }}. Please address them immediately.</p>
+    <hr>
+    <ul class="list-unstyled mb-0 small">
+        {% for task in overdue_tasks|slice:":5" %} 
+            <li>
+                <i class="far fa-circle-xmark me-1"></i> 
+                **{{ task.title }}** - Deadline: <span class="fw-bold">{{ task.deadline }}</span> 
+                (<a href="{% url 'view_tasks' %}#task-{{ task.id }}" class="alert-link text-danger">View Task</a>)
+            </li>
         {% endfor %}
+        {% if overdue_tasks.count > 5 %}
+             <li class="mt-2"><a href="{% url 'view_tasks' %}" class="alert-link text-danger fw-bold">... and {{ overdue_tasks.count|add:"-5" }} more.</a></li>
+        {% endif %}
     </ul>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endif %}
 
-<div class="row my-4">
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-white bg-primary h-100">
-            <div class="card-header">Total Tasks</div>
-            <div class="card-body d-flex align-items-center justify-content-center">
+<div class="row my-4 g-4">
+    
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card stat-card text-white bg-custom-total h-100">
+            <div class="card-header"><i class="fas fa-layer-group me-2"></i> TOTAL TASKS</div>
+            <div class="card-body d-flex align-items-center justify-content-between">
                 <h3 class="card-title mb-0">{{ total_tasks }}</h3>
+                <i class="fas fa-clipboard-list fa-3x opacity-50"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-white bg-warning h-100">
-            <div class="card-header">Pending Tasks</div>
-            <div class="card-body d-flex align-items-center justify-content-center">
+    
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card stat-card bg-custom-pending h-100">
+            <div class="card-header"><i class="fas fa-hourglass-start me-2"></i> PENDING TASKS</div>
+            <div class="card-body d-flex align-items-center justify-content-between">
                 <h3 class="card-title mb-0">{{ pending_tasks }}</h3>
+                <i class="fas fa-exclamation-circle fa-3x opacity-50"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-white bg-info h-100">
-            <div class="card-header">In Progress Tasks</div>
-            <div class="card-body d-flex align-items-center justify-content-center">
+    
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card stat-card text-white bg-custom-progress h-100">
+            <div class="card-header"><i class="fas fa-sync-alt me-2"></i> IN PROGRESS</div>
+            <div class="card-body d-flex align-items-center justify-content-between">
                 <h3 class="card-title mb-0">{{ in_progress_tasks }}</h3>
+                <i class="fas fa-cogs fa-3x opacity-50"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-white bg-success h-100">
-            <div class="card-header">Completed Tasks</div>
-            <div class="card-body d-flex align-items-center justify-content-center">
+    
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card stat-card text-white bg-custom-completed h-100">
+            <div class="card-header"><i class="fas fa-trophy me-2"></i> COMPLETED</div>
+            <div class="card-body d-flex align-items-center justify-content-between">
                 <h3 class="card-title mb-0">{{ completed_tasks }}</h3>
+                <i class="fas fa-check-double fa-3x opacity-50"></i>
             </div>
         </div>
     </div>
 </div>
 
-<h4 class="mb-3">Task Status Overview</h4>
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <canvas id="tasksStatusBarChart" style="max-height: 200px;"></canvas>
+<h4 class="mt-4 mb-3" style="color: #2c3e50; font-family: 'Poppins', sans-serif; font-weight: 600;">Task Status Visualizations</h4>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-3 text-center">Task Count Distribution (Bar)</h5>
+            <canvas id="tasksStatusBarChart" style="max-height: 300px;"></canvas>
+        </div>
     </div>
-    <div class="col-md-6 mb-4">
-        <canvas id="tasksStatusPieChart" style="max-height: 200px;"></canvas>
+    <div class="col-md-6">
+        <div class="chart-container">
+             <h5 class="mb-3 text-center">Task Completion Ratio (Pie)</h5>
+            <canvas id="tasksStatusPieChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <a href="{% url 'add_task' %}" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-plus-circle me-2"></i> Assign New Task
+        </a>
+        <a href="{% url 'view_tasks' %}" class="btn btn-outline-primary btn-lg ms-3 px-5">
+            <i class="fas fa-list-ul me-2"></i> View All Tasks
+        </a>
     </div>
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const colors = {
-        pending: 'rgba(255, 193, 7, 0.7)',    // yellow
-        inProgress: 'rgba(23, 162, 184, 0.7)', // blue
-        completed: 'rgba(40, 167, 69, 0.7)'    // green
+    //   Chart Data and Colors (Updated to use ProTask colors)  
+    const chartColors = {
+        primary: '#007bff',      // Total/Primary Blue
+        warning: '#ffc107',      // Pending Yellow
+        info: '#17a2b8',         // In Progress Cyan
+        success: '#28a745',      // Completed Green
+        danger: '#dc3545'       // Overdue Red (not used in main charts)
     };
-    const borderColors = {
-        pending: 'rgba(255, 193, 7, 1)',
-        inProgress: 'rgba(23, 162, 184, 1)',
-        completed: 'rgba(40, 167, 69, 1)'
+    
+    // Chart.js data is pulled from Django context
+    const chartData = {
+        pending: {{ pending_tasks|default:0 }},
+        inProgress: {{ in_progress_tasks|default:0 }},
+        completed: {{ completed_tasks|default:0 }}
     };
 
-    // Bar Chart
+    const dataLabels = ['Pending', 'In Progress', 'Completed'];
+    const dataValues = [chartData.pending, chartData.inProgress, chartData.completed];
+    const backgroundColors = [chartColors.warning, chartColors.info, chartColors.success];
+    const borderColors = [chartColors.warning, chartColors.info, chartColors.success];
+
+
+    //   Bar Chart Configuration  
     const ctxBar = document.getElementById('tasksStatusBarChart').getContext('2d');
     const tasksStatusBarChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: ['Pending', 'In Progress', 'Completed'],
+            labels: dataLabels,
             datasets: [{
                 label: 'Number of Tasks',
-                data: [
-                    {{ pending_tasks }},
-                    {{ in_progress_tasks }},
-                    {{ completed_tasks }}
-                ],
-                backgroundColor: [
-                    colors.pending,
-                    colors.inProgress,
-                    colors.completed
-                ],
-                borderColor: [
-                    borderColors.pending,
-                    borderColors.inProgress,
-                    borderColors.completed
-                ],
+                data: dataValues,
+                backgroundColor: backgroundColors,
+                borderColor: backgroundColors.map(c => c.replace('0.7', '1')), // Use solid borders
                 borderWidth: 1,
-                borderRadius: 5,
-                barPercentage: 0.6
+                borderRadius: 8, // Modern rounded bars
+                barPercentage: 0.7
             }]
         },
         options: {
@@ -111,49 +211,38 @@
                 y: {
                     beginAtZero: true,
                     precision: 0,
-                    stepSize: 1,
+                    suggestedMax: Math.max(...dataValues) + 1,
                     grid: {
                         drawBorder: false,
-                        color: '#e0e0e0'
+                        color: '#f0f0f0' // Lighter grid lines
                     }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    }
+                    grid: { display: false }
                 }
             },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    enabled: true,
-                    backgroundColor: '#333',
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 12 }
+                    backgroundColor: 'rgba(44, 62, 80, 0.9)', // Dark Navy tooltip
+                    titleFont: { family: 'Poppins' },
+                    bodyFont: { family: 'Roboto' }
                 }
             }
         }
     });
 
-    // Pie Chart
+    //   Pie Chart Configuration  
     const ctxPie = document.getElementById('tasksStatusPieChart').getContext('2d');
     const tasksStatusPieChart = new Chart(ctxPie, {
-        type: 'pie',
+        type: 'doughnut', // Changed to doughnut for a modern look
         data: {
-            labels: ['Pending', 'In Progress', 'Completed'],
+            labels: dataLabels,
             datasets: [{
-                data: [
-                    {{ pending_tasks }},
-                    {{ in_progress_tasks }},
-                    {{ completed_tasks }}
-                ],
-                backgroundColor: [
-                    colors.pending,
-                    colors.inProgress,
-                    colors.completed
-                ],
-                borderColor: '#fff',
-                borderWidth: 2
+                data: dataValues,
+                backgroundColor: backgroundColors,
+                borderColor: '#ffffff', // White border separates slices
+                borderWidth: 4 // Thicker border
             }]
         },
         options: {
@@ -163,16 +252,15 @@
                 legend: {
                     position: 'bottom',
                     labels: {
-                        boxWidth: 18,
-                        padding: 15,
-                        font: { size: 14 }
+                        boxWidth: 15,
+                        padding: 25,
+                        font: { family: 'Roboto', size: 14 }
                     }
                 },
                 tooltip: {
-                    enabled: true,
-                    backgroundColor: '#333',
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 12 }
+                    backgroundColor: 'rgba(44, 62, 80, 0.9)', // Dark Navy tooltip
+                    titleFont: { family: 'Poppins' },
+                    bodyFont: { family: 'Roboto' }
                 }
             }
         }

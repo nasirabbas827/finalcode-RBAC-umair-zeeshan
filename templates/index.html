@@ -1,76 +1,178 @@
 {% extends 'base.html' %}
 
-{% block title %}Welcome to Task Manager{% endblock %}
-
-{% block head %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-{% endblock %}
+{% block title %}ProTask: Simplify Your Team's Workflow{% endblock %}
 
 {% block content %}
-<!-- Jumbotron / Hero Section -->
-<div class="p-5 mb-4 bg-light rounded-3">
-  <div class="container-fluid py-5 text-center">
-    <h1 class="display-4 fw-bold">Welcome to Task Manager</h1>
-    <p class="col-md-8 fs-5 mx-auto">Simplify your workflow, stay organized, and never miss a deadline.</p>
-    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Get Started <i class="fas fa-arrow-right ms-2"></i></a>
-  </div>
-</div>
 
-<!-- Section 1: Features -->
-<div class="container py-5">
-  <div class="row align-items-center">
-    <div class="col-md-6">
-      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Organize tasks" class="img-fluid rounded">
-    </div>
-    <div class="col-md-6">
-      <h2><i class="fas fa-tasks me-2"></i>Organize Your Tasks</h2>
-      <p>Easily create, update, and manage tasks with intuitive controls and customizable filters.</p>
-      <ul class="list-unstyled">
-        <li><i class="fas fa-check-circle text-success me-2"></i> Create tasks in seconds</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Set priorities and deadlines</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Categorize with custom labels</li>
-      </ul>
-    </div>
-  </div>
-</div>
+<style>
+/* Local styles specific to this landing page to override/enhance base styles */
 
-<!-- Section 2: Collaboration -->
-<div class="container py-5 bg-light">
-  <div class="row align-items-center">
-    <div class="col-md-6 order-md-2">
-      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Collaborate with team" class="img-fluid rounded">
-    </div>
-    <div class="col-md-6 order-md-1">
-      <h2><i class="fas fa-users me-2"></i>Team Collaboration</h2>
-      <p>Assign tasks to team members, track progress, and communicate effectively to boost productivity.</p>
-      <ul class="list-unstyled">
-        <li><i class="fas fa-check-circle text-success me-2"></i> Real-time updates</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Comment on tasks</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Role-based permissions</li>
-      </ul>
-    </div>
-  </div>
-</div>
+/* Feature List improvements */
+.feature-list li {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 400;
+}
 
-<!-- Section 3: Analytics -->
-<div class="container py-5">
-  <div class="row align-items-center">
-    <div class="col-md-6">
-      <img  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Task analytics" class="img-fluid rounded">
+/* Ensure headings in sections are left-aligned and use the dark color */
+.container h2 {
+    text-align: left !important;
+    color: #2c3e50 !important;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* Image styling */
+.img-fluid.rounded.shadow-lg {
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.img-fluid.rounded.shadow-lg:hover {
+    transform: scale(1.02);
+}
+
+/* Ensure the hero heading uses white color */
+.hero-section h1 {
+    color: white !important; 
+}
+
+/* Final CTA Styling */
+.final-cta .btn-primary {
+    /* Use a contrasting color for the final CTA, like teal */
+    background-color: #00b8b8 !important; 
+    border-color: #00b8b8 !important;
+    transition: background-color 0.3s ease;
+}
+
+.final-cta .btn-primary:hover {
+    background-color: #009999 !important;
+    border-color: #009999 !important;
+}
+
+/* Highlighted Stat Box */
+.stat-box {
+    border-left: 5px solid #007bff;
+    padding-left: 15px;
+    margin: 15px 0;
+    background-color: #f7f9fb;
+    border-radius: 4px;
+}
+</style>
+
+<header class="hero-section text-white text-center py-5 mb-5" style="background-color: #007bff; border-radius: 0 0 20px 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+    <div class="container py-5">
+        <h1 class="display-3 fw-bolder mb-3" style="font-family: 'Poppins', sans-serif;">
+            Seamless Task Management for Modern Teams
+        </h1>
+        <p class="col-lg-8 fs-5 mx-auto mb-4" style="opacity: 0.9;">
+            ProTask empowers you to organize, collaborate, and execute projects with **Role-Based Access Control (RBAC)** for maximum clarity and security.
+        </p>
+        <a href="{% url 'login' %}" class="btn btn-light btn-lg fw-bold" style="color: #007bff; padding: 12px 30px; border-radius: 8px;">
+            Start Free Today <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+        <p class="mt-3" style="font-size: 0.9rem; opacity: 0.8;">No credit card required. Managers and Members welcome.</p>
     </div>
-    <div class="col-md-6">
-      <h2><i class="fas fa-chart-line me-2"></i>Insights & Analytics</h2>
-      <p>Visualize task completion statistics with charts to help make data-driven decisions.</p>
-      <ul class="list-unstyled">
-        <li><i class="fas fa-check-circle text-success me-2"></i> Performance metrics</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Time tracking reports</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Customizable dashboards</li>
-      </ul>
+</header>
+
+<div class="container"><hr class="my-5"></div>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                     alt="Clean dashboard for organizing tasks" class="img-fluid rounded shadow-lg">
+            </div>
+            <div class="col-md-6">
+                <h2 class="text-start" style="color: #2c3e50; margin-top: 0;">
+                    <i class="fas fa-list-check me-2 text-primary"></i> Structure Your Workflow
+                </h2>
+                <p class="lead">From inception to completion, define every step with precision. Use intuitive controls to keep complex projects manageable and visible.</p>
+                
+                <div class="stat-box">
+                    <p class="mb-0 fw-bold text-danger">The Problem:</p>
+                    <p class="mb-0">Only **34% of organizations** consistently complete projects on time. Don't be part of the delay. *</p>
+                </div>
+
+                <ul class="list-unstyled feature-list mt-4">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> **Quick Creation:** Define new tasks in seconds.</li>
+                    <li><i class="fas fa-clock text-primary me-2"></i> **Time Management:** Set clear priorities and firm deadlines.</li>
+                    <li><i class="fas fa-tag text-info me-2"></i> **Custom Tagging:** Categorize tasks with custom labels for easy filtering.</li>
+                </ul>
+                <p class="mt-2" style="font-size: 0.8rem; color: #6c757d;">* Source: Wellingtone State of Project Management Report</p>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+</section>
 
+<section class="py-5" style="background-color: #ebf0f5;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 order-md-2 mb-4 mb-md-0">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                     alt="Team members collaborating around a screen" class="img-fluid rounded shadow-lg">
+            </div>
+            <div class="col-md-6 order-md-1">
+                <h2 class="text-start" style="color: #2c3e50; margin-top: 0;">
+                    <i class="fas fa-users-gear me-2 text-primary"></i> Teamwork with RBAC Security
+                </h2>
+                <p class="lead">Leverage **Role-Based Access Control** to ensure everyone sees exactly what they need, minimizing errors and maximizing focus.</p>
 
+                <div class="stat-box">
+                    <p class="mb-0 fw-bold text-danger">The Risk:</p>
+                    <p class="mb-0">**38% of companies** cite confusion over team roles and responsibilities as a major barrier to success. **ProTask fixes this.** *</p>
+                </div>
+                
+                <ul class="list-unstyled feature-list mt-4">
+                    <li><i class="fas fa-shield-alt text-success me-2"></i> **Secure Permissions:** Managers assign, Members execute.</li>
+                    <li><i class="fas fa-sync-alt text-primary me-2"></i> **Real-time Updates:** See progress instantly across the team.</li>
+                    <li><i class="fas fa-comment-dots text-info me-2"></i> **Integrated Communication:** Discuss tasks directly on the platform.</li>
+                </ul>
+                <p class="mt-2" style="font-size: 0.8rem; color: #6c757d;">* Source: Geneca/Wellingtone Project Report</p>
+            </div>
+        </div>
+    </div>
+</section>
 
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                     alt="Charts and graphs showing business analytics" class="img-fluid rounded shadow-lg">
+            </div>
+            <div class="col-md-6">
+                <h2 class="text-start" style="color: #2c3e50; margin-top: 0;">
+                    <i class="fas fa-chart-line me-2 text-primary"></i> Insights & Data-Driven Performance
+                </h2>
+                <p class="lead">Stop guessing and start optimizing. Get clear visibility into team performance and project bottlenecks.</p>
+
+                <div class="stat-box">
+                    <p class="mb-0 fw-bold text-danger">The Efficiency Drain:</p>
+                    <p class="mb-0">**42% of project professionals** spend an entire day (or more) manually collating reports. ProTask automates this. *</p>
+                </div>
+
+                <ul class="list-unstyled feature-list mt-4">
+                    <li><i class="fas fa-chart-pie text-success me-2"></i> **Completion Metrics:** Track task velocity and success rates.</li>
+                    <li><i class="fas fa-hourglass-half text-primary me-2"></i> **Time Reports:** Understand where time is actually spent.</li>
+                    <li><i class="fas fa-handshake text-info me-2"></i> **Improved Decisions:** Use clear data to allocate resources better.</li>
+                </ul>
+                <p class="mt-2" style="font-size: 0.8rem; color: #6c757d;">* Source: Wellingtone State of Project Management Report</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="final-cta py-5" style="background-color: #2c3e50; color: #ffffff;">
+    <div class="container text-center">
+        <h2 class="text-white mb-3" style="font-family: 'Poppins', sans-serif;">Ready to elevate your team's productivity?</h2>
+        <p class="col-md-8 fs-5 mx-auto mb-4">Join ProTask today and transform the way your team manages work.</p>
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg fw-bold" style="background-color: #00b8b8 !important; border-color: #00b8b8 !important; padding: 15px 40px; border-radius: 8px;">
+            Sign Up Now - It's Free! <i class="fas fa-rocket ms-2"></i>
+        </a>
+    </div>
+</section>
 
 {% endblock %}
